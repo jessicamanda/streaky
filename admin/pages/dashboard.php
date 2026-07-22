@@ -1,0 +1,1 @@
+<img src="assets\images\ecommerce\product-1.jpg" alt="">

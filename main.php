@@ -1,392 +1,390 @@
-<section class="hero" id="hero">
-    <img class="mb-4" src="assets/img/hero.png" alt="">
-    <div class="text mb-4">
-        <h2>Fresh Flowers</h2>
-        <h4>Natural & Pretty Flowers</h4>
-        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Qui aliquam omnis, impedit consequatur voluptates natus voluptate cumque et quisquam provident laborum blanditiis quia recusandae corrupti? Doloremque dolor odio.</p>
+<?php
+if (isset($_POST['contact'])) {
+  $name = htmlspecialchars($_POST['name']);
+  $whatsapp = htmlspecialchars($_POST['whatsapp']);
+  $message = htmlspecialchars($_POST['message']);
+
+  $sql = "INSERT INTO contact (name, whatsapp, message) VALUES (?, ?, ?)";
+  $stmt = $con->prepare($sql);
+  $stmt->bind_param("sss", $name, $whatsapp, $message);
+  $stmt->execute();
+  if ($stmt) {
+    echo "<script>
+            alert('Success');
+            window.location.href = 'main.php';
+          </script>";
+  } else {
+    echo "<script>
+            alert('Error');
+            window.location.href = 'main.php';
+          </script>";
+  }
+}
+?>
+
+<section class="hero-section" id="hero">
+  <div class="container text-center py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <img class="img-fluid rounded-4 mb-4 hero-img" src="assets/img/hero.png" alt="Fresh Flowers">
+        <span class="badge bg-soft-primary text-primary px-3 py-2 mb-2 rounded-pill fw-semibold">Natural & Pretty
+          Flowers</span>
+        <h1 class="display-4 fw-bold text-dark mb-3">Fresh Flowers</h1>
+        <p class="text-muted leading-relaxed max-w-600 mx-auto">
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Qui aliquam omnis, impedit consequatur voluptates
+          natus voluptate cumque et quisquam provident laborum.
+        </p>
+      </div>
     </div>
+  </div>
 </section>
-<section class="products" id="products">
-    <div class="categories">
-        <h5>Categories</h5>
-        <div class="items mt-4">
-            <div class="item">
-                <img src="assets/img/fresh.png" alt="">
-                <p>Fresh Flowers</p>
-            </div>
-            <div class="item">
-                <img src="assets/img/dried.png" alt="">
-                <p>Dried Flowers</p>
-            </div>
-            <div class="item">
-                <img src="assets/img/plant.png" alt="">
-                <p>Fresh Plants</p>
-            </div>
-            <div class="item">
-                <img src="assets/img/wreath.png" alt="">
-                <p>Flowers Wreath</p>
-            </div>
-            <div class="item">
-                <img src="assets/img/tools.png" alt="">
-                <p>Farming Tools</p>
-            </div>
+
+<section class="py-5 bg-light-section" id="categories">
+  <div class="text-center mb-5">
+    <h2 class="section-title">Categories</h2>
+    <p class="text-muted">Explore our wide selection of fresh blooms</p>
+  </div>
+  <div class="row g-4 justify-content-center">
+    <?php
+    $sql = "SELECT * FROM category ORDER BY name ASC";
+    $query = $con->query($sql);
+    while ($row = $query->fetch_assoc()) {
+      ?>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="category-card text-center p-3 h-100">
+          <div class="category-img-wrapper mb-3">
+            <img src="admin/assets/images/category/<?= $row['photo'] ?>" alt="<?= $row['name'] ?>" class="img-fluid">
+          </div>
+          <h6 class="fw-semibold text-dark mb-0"><?= $row['name'] ?></h6>
         </div>
-    </div>
-    <div class="products-row">
-        <h5 class="name">Our Products</h5>
-        <div class="items mt-4 d-flex justify-content-center align-items-center">
-            <div class="card">
-                <img src="assets/img/fresh.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h6 class="card-title">Fresh Flowers</h6>
-                    <h4>Rp 120.000</h4>
-                    <p>200 Terjual</p>
-                    <a href="#" class="btn btn">Add To Cart</a>
-                </div>
-            </div>
-            <div class="card">
-                <img src="assets/img/fresh.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h6 class="card-title">Fresh Flowers</h6>
-                    <h4>Rp 120.000</h4>
-                    <p>200 Terjual</p>
-                    <a href="#" class="btn btn">Add To Cart</a>
-                </div>
-            </div>
-            <div class="card">
-                <img src="assets/img/fresh.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h6 class="card-title">Fresh Flowers</h6>
-                    <h4>Rp 120.000</h4>
-                    <p>200 Terjual</p>
-                    <a href="#" class="btn btn">Add To Cart</a>
-                </div>
-            </div>
-            <div class="card">
-                <img src="assets/img/fresh.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h6 class="card-title">Fresh Flowers</h6>
-                    <h4>Rp 120.000</h4>
-                    <p>200 Terjual</p>
-                    <a href="#" class="btn btn">Add To Cart</a>
-                </div>
-            </div>
-        </div>
-        <a href="#" class="btn btn mt-4 mb-5">Show All</a>
-    </div>
+      </div>
+    <?php } ?>
+  </div>
 </section>
-<section class="services" id="services">
-    <div class="servis row">
-        <div class="col-3">
+
+<section class="py-5" id="products">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Our Products</h2>
+      <p class="text-muted">Handpicked arrangements crafted with love</p>
+    </div>
+    <div class="row g-4">
+      <?php
+      $sql = "SELECT * FROM product ORDER BY product_name ASC";
+      $query = $con->query($sql);
+      while ($row = $query->fetch_assoc()) {
+        ?>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="product-img-holder">
+              <img src="admin/assets/images/product/<?= $row['product_photo'] ?>" alt="<?= $row['product_name'] ?>">
+            </div>
+            <div class="product-body p-3">
+              <h6 class="product-title mb-2"><?= $row['product_name'] ?></h6>
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="product-price">Rp <?= number_format($row['product_price'], 0, ',', '.') ?></span>
+                <a href="#" class="btn btn-outline-custom btn-sm"><i class="bi bi-cart-plus me-1"></i> Add</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <?php } ?>
+    </div>
+    <div class="text-center mt-5">
+      <a href="#" class="btn btn-custom px-4 py-2">Show All Products</a>
+    </div>
+  </div>
+</section>
+
+<section class="features-section py-5" id="services">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3">
+        <div class="feature-box p-3">
+          <div class="icon-wrapper mb-3">
             <i class="bi bi-trophy"></i>
-            <h6>Best Products</h6>
+          </div>
+          <h6 class="fw-bold mb-1">Best Products</h6>
+          <p class="text-muted small mb-0">Premium quality flowers</p>
         </div>
-        <div class="col-3">
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="feature-box p-3">
+          <div class="icon-wrapper mb-3">
             <i class="bi bi-stopwatch"></i>
-            <h6>Fast Respon</h6>
+          </div>
+          <h6 class="fw-bold mb-1">Fast Response</h6>
+          <p class="text-muted small mb-0">Ready to help anytime</p>
         </div>
-        <div class="col-3">
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="feature-box p-3">
+          <div class="icon-wrapper mb-3">
             <i class="bi bi-truck"></i>
-            <h6>Free Shipping</h6>
+          </div>
+          <h6 class="fw-bold mb-1">Free Shipping</h6>
+          <p class="text-muted small mb-0">On selected orders</p>
         </div>
-        <div class="col-3">
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="feature-box p-3">
+          <div class="icon-wrapper mb-3">
             <i class="bi bi-cash-coin"></i>
-            <h6>Easy Payment</h6>
+          </div>
+          <h6 class="fw-bold mb-1">Easy Payment</h6>
+          <p class="text-muted small mb-0">Secure transactions</p>
         </div>
+      </div>
     </div>
+  </div>
 </section>
-<section class="contact" id="contact">
-    <h5>Contact Us</h5>
-    <div class="row">
-        <div class="col-6">
-            <form action="">
-                <label for="" class="form-label">Your Name :</label>
-                <input type="text" class="form-control mb-4" name="name">
-                <label for="" class="form-label">Your Email :</label>
-                <input type="email" class="form-control mb-4" name="email">
-                <label for="" class="form-label">Your Message :</label>
-                <textarea class="form-control mb-4" name="message" rows="4"></textarea>
-                <button class="btn btn" name="send"><i class="bi bi-send-fill"></i>Send!</button>
-            </form>
-            <div class="social row mt-5">
-                <div class="col-6">
-                    <h3><i class="bi bi-instagram"></i> @florist.co</h3>
-                </div>
-                <div class="col-6">
-                    <h3><i class="bi bi-facebook"></i> @florist.co</h3>
-                </div>
+
+<section class="py-5 bg-light-section" id="contact">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Contact Us</h2>
+      <p class="text-muted">We'd love to hear from you</p>
+    </div>
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <div class="contact-form-card p-4 p-md-5">
+          <form action="" method="POST">
+            <div class="mb-3">
+              <label class="form-label text-dark fw-medium">Your Name</label>
+              <input type="text" class="form-control custom-input" name="name" placeholder="John Doe" required>
             </div>
+            <div class="mb-3">
+              <label class="form-label text-dark fw-medium">WhatsApp Number</label>
+              <input type="number" class="form-control custom-input" name="whatsapp" placeholder="08123456789" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label text-dark fw-medium">Your Message</label>
+              <textarea class="form-control custom-input" name="message" rows="4" placeholder="How can we help you?"
+                required></textarea>
+            </div>
+            <button type="submit" class="btn btn-custom w-100 py-2 fw-semibold" name="contact">
+              <i class="bi bi-send-fill me-2"></i>Send Message
+            </button>
+          </form>
+
+          <div class="row pt-4 mt-4 border-top">
+            <div class="col-6">
+              <a href="#" class="social-link text-decoration-none">
+                <i class="bi bi-instagram me-2"></i>@florist.co
+              </a>
+            </div>
+            <div class="col-6">
+              <a href="#" class="social-link text-decoration-none">
+                <i class="bi bi-facebook me-2"></i>@florist.co
+              </a>
+            </div>
+          </div>
         </div>
-        <div class="col-6">
-            <img src="assets/img/contact.png" alt="">
-        </div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <img src="assets/img/contact.png" alt="Contact Us" class="img-fluid rounded-4 shadow-sm">
+      </div>
     </div>
 </section>
 
-<style>  
-.hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+<style>
+  :root {
+    --primary-color: #67d132;
+    --primary-hover: #1b5e20;
+    --primary-soft: rgba(46, 125, 50, 0.08);
+    --bg-light: #f8faf8;
+    --text-dark: #1a202c;
+    --border-color: #e2e8f0;
+  }
 
-.hero img {
-  width: 85%;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  background-size: cover;
-  background-position: center;
-  text-align: center;
-}
+  body {
+    color: var(--text-dark);
+  }
 
-.hero .text {
-  text-align: center;
-}
+  .section-title {
+    font-weight: 700;
+    color: var(--text-dark);
+    position: relative;
+    display: inline-block;
+  }
 
-.hero h2 {
-  font-weight: 600;
-}
+  .bg-light-section {
+    background-color: var(--bg-light);
+  }
 
-.hero h4 {
-  letter-spacing: 8px;
-}
+  .bg-soft-primary {
+    background-color: var(--primary-soft);
+  }
 
-.hero p {
-  max-width: 900px;
-}
+  .text-primary {
+    color: var(--primary-color) !important;
+  }
 
-.categories {
-  background-color: #67d132;
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding-left: 50px;
-  padding-right: 50px;
-}
+  .hero-img {
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+  }
 
-.categories h5 {
-  color: white;
-  text-align: center;
-  padding-top: 30px;
-  font-weight: 700;
-  letter-spacing: 5px;
-}
+  #categories {
+    background-color: #67d132;
+  }
 
-.categories .items {
-  display: flex;
-  max-width: 100%;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
+  .category-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+  }
 
-.categories .item {
-  text-align: center;
-  flex-basis: 18%;
-  color: white;
-  font-weight: 500;
-}
+  .category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color);
+  }
 
-.categories .item img {
-  margin-bottom: 10px;
-  width: 150px;
-  height: 150px;
-}
+  .category-img-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.products-row {
-  background-color: rgba(103, 209, 50, 0.2);
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding-left: 50px;
-  padding-right: 50px;
-}
+  .category-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.products-row .name {
-  text-align: center;
-  padding-top: 30px;
-  font-weight: 700;
-  letter-spacing: 5px;
-  color: #67d132;
-}
+  .product-card {
+    background: #67d13243;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
 
-.products-row .items .card {
-  border: none;
-  width: 220px;
-  border-radius: 20px;
-  margin: auto;
-}
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  }
 
-.products-row .items .card img {
-  padding: 10px;
-  height: 200px;
-  width: 200px;
-}
+  .product-img-holder {
+    height: 220px;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-light);
+  }
 
-.products-row .items .card-body {
-  text-align: start;
-}
+  .product-img-holder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
 
-.products-row .items .card-body h6 {
-  font-weight: 600;
-}
+  .product-card:hover .product-img-holder img {
+    transform: scale(1.05);
+  }
 
-.products-row .items .card-body h4 {
-  font-weight: 800;
-  color: red;
-}
+  .product-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
 
-.products-row .items .card-body p {
-  font-size: 14px;
-  color: gray;
-}
+  .product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
 
-.products-row a {
-  background-color: #67d132;
-  width: 100%;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-}
+  .btn-custom {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.2s ease;
+  }
 
-.products-row {
-  background-color: rgba(103, 209, 50, 0.2);
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding-left: 50px;
-  padding-right: 50px;
-}
+  .btn-custom:hover {
+    background-color: var(--primary-hover);
+    color: #ffffff;
+  }
 
-.products-row .name {
-  text-align: center;
-  padding-top: 30px;
-  font-weight: 700;
-  letter-spacing: 5px;
-  color: #67d132;
-}
+  .btn-outline-custom {
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
 
-.products-row .items .card {
-  border: none;
-  width: 220px;
-  border-radius: 20px;
-  margin: auto;
-}
+  .btn-outline-custom:hover {
+    background-color: var(--primary-color);
+    color: #ffffff;
+  }
 
-.products-row .items .card img {
-  padding: 10px;
-  height: 200px;
-  width: 200px;
-}
+  .feature-box {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+  }
 
-.products-row .items .card-body {
-  text-align: start;
-}
+  #services {
+    background-color: #67d132;
+  }
 
-.products-row .items .card-body h6 {
-  font-weight: 600;
-}
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--primary-soft);
+    color: var(--primary-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
 
-.products-row .items .card-body h4 {
-  font-weight: 800;
-  color: red;
-}
+  .contact-form-card {
+    background: #67d13243;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  }
 
-.products-row .items .card-body p {
-  font-size: 14px;
-  color: gray;
-}
+  .custom-input {
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    background-color: #ffffff;
+  }
 
-.products-row a {
-  background-color: #67d132;
-  width: 100%;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-}
+  .custom-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
 
-.services {
-  background-color: #67d132;
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding-left: 50px;
-  padding-right: 50px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
+  .social-link {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+  }
 
-.services .col-3 {
-  text-align: center;
-  color: white;
-}
+  .social-link:hover {
+    color: var(--primary-color);
+  }
 
-.services .col-3 h6 {
-  font-weight: 500;
-  margin-top: -10px;
-  font-size: 18px;
-}
-
-.services i {
-  font-size: 80px;
-}
-
-.contact h5 {
-  color: #67d132;
-  text-align: center;
-  padding-top: 30px;
-  font-weight: 700;
-  letter-spacing: 5px;
-  margin-bottom: 20px;
-}
-
-.contact label {
-  color: #67d132;
-  font-weight: 500;
-}
-
-.contact button {
-  background-color: #67d132;
-  width: 100%;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.contact .social i {
-  color: #67d132;
-  font-size: 30px;
-  margin-right: 10px;
-}
-.contact h3 {
-  color: #67d132;
-  font-size: 17px;
-}
-
-.contact input,
-.contact textarea {
-  background-color: rgba(103, 209, 50, 0.2);
-  border-radius: 5px;
-}
-
-.contact img {
-  width: 100%;
-  display: flex;
-  justify-content: end;
-  align-items: end;
-}
-
+  .social-link i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+  }
 </style>

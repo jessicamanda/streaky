@@ -17,7 +17,7 @@
                 </li>
                 <li class="nav-item d-flex">
                     <a class="nav-link" href="index.php?hal=cart"><i class="bi bi-cart" style="font-size: 16px;"></i></a>
-                    <a class="nav-link" href="login.php"><i class="bi bi-person-fill" style="font-size: 16px;"></i></a>
+                    <a class="nav-link" href="admin/login.php"><i class="bi bi-person-fill" style="font-size: 16px;"></i></a>
                 </li>
             </ul>
         </div>
