@@ -1,375 +1,343 @@
-<div>
-    <?php
-    if (isset($_POST['add'])) {
-        $product_name = $_POST['product_name'];
-        $product_category = $_POST['product_category'];
-        $product_description = $_POST['product_description'];
-        $product_price = $_POST['product_price'];
-        $product_status = $_POST['product_status'];
-        $product_photo = 'product.jpg';
+<?php
+// 1. TAMBAH PRODUCT
+if (isset($_POST['add'])) {
+    $product_name = $_POST['product_name'] ?? '';
+    $product_category = $_POST['product_category'] ?? '';
+    $product_description = $_POST['product_description'] ?? '';
+    $product_price = (float) ($_POST['product_price'] ?? 0);
+    $product_status = $_POST['product_status'] ?? 'active';
+    $product_photo = 'product.png';
 
-        if ($_FILES['product_photo']['name'] != '') {
-            $result = uploadFile($_FILES['product_photo'], 'assets/images/product/');
-            $product_photo = $result['file_name'];
-        }
-
-        $con->query("INSERT INTO product (product_name, product_category, product_description, 
-        product_price, product_status, product_photo) 
-        VALUES ('$product_name', '$product_category', '$product_description', 
-        '$product_price', '$product_status', '$product_photo')");
-        echo "<script>alert('Success'); document.location.href = 'index.php?page=product';</script>";
-        exit();
+    if (!empty($_FILES['product_photo']['name'])) {
+        $result = uploadFile($_FILES['product_photo'], 'assets/images/product/');
+        $product_photo = $result['file_name'];
     }
 
-    if (isset($_POST['update'])) {
-        $id = $_POST['id'];
-        $product_name = $_POST['product_name'];
-        $product_category = $_POST['product_category'];
-        $product_description = $_POST['product_description'];
-        $product_price = $_POST['product_price'];
-        $product_status = $_POST['product_status'];
-        $singleproduct = $con->query("SELECT * FROM product WHERE id = '$id'")->fetch_assoc();
+    $stmt = $con->prepare("INSERT INTO product (product_name, product_category, product_description, product_price, product_status, product_photo) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssiss", $product_name, $product_category, $product_description, $product_price, $product_status, $product_photo);
+
+    if ($stmt->execute()) {
+        $stmt->close();
+        echo "<script>alert('Product added successfully!'); document.location.href = 'index.php?page=product';</script>";
+        exit();
+    } else {
+        echo "<script>alert('Failed to add product: " . addslashes($stmt->error) . "');</script>";
+        $stmt->close();
+    }
+}
+
+// 2. UPDATE PRODUCT
+if (isset($_POST['update'])) {
+    $id = (int) $_POST['id'];
+    $product_name = $_POST['product_name'] ?? '';
+    $product_category = $_POST['product_category'] ?? '';
+    $product_description = $_POST['product_description'] ?? '';
+    $product_price = (float) ($_POST['product_price'] ?? 0);
+    $product_status = $_POST['product_status'] ?? 'active';
+
+    $stmt_get = $con->prepare("SELECT product_photo FROM product WHERE id = ?");
+    $stmt_get->bind_param("i", $id);
+    $stmt_get->execute();
+    $singleproduct = $stmt_get->get_result()->fetch_assoc();
+    $stmt_get->close();
+
+    $product_photo = $singleproduct['product_photo'] ?? 'product.png';
+
+    if (!empty($_FILES['product_photo']['name'])) {
+        if ($product_photo != 'product.png' && file_exists('assets/images/product/' . $product_photo)) {
+            unlink('assets/images/product/' . $product_photo);
+        }
+        $result = uploadFile($_FILES['product_photo'], 'assets/images/product/');
+        $product_photo = $result['file_name'];
+    }
+
+    $stmt = $con->prepare("UPDATE product SET product_name = ?, product_category = ?, product_description = ?, product_price = ?, product_photo = ?, product_status = ? WHERE id = ?");
+    $stmt->bind_param("sssissi", $product_name, $product_category, $product_description, $product_price, $product_photo, $product_status, $id);
+
+    if ($stmt->execute()) {
+        $stmt->close();
+        echo "<script>alert('Product updated successfully!'); document.location.href = 'index.php?page=product';</script>";
+        exit();
+    } else {
+        echo "<script>alert('Failed to update product: " . addslashes($stmt->error) . "');</script>";
+        $stmt->close();
+    }
+}
+
+// 3. DELETE PRODUCT
+if (isset($_GET['delete'])) {
+    $id = (int) $_GET['delete'];
+
+    $stmt_get = $con->prepare("SELECT product_photo FROM product WHERE id = ?");
+    $stmt_get->bind_param("i", $id);
+    $stmt_get->execute();
+    $singleproduct = $stmt_get->get_result()->fetch_assoc();
+    $stmt_get->close();
+
+    if ($singleproduct) {
         $product_photo = $singleproduct['product_photo'];
-
-        if ($_FILES['product_photo']['name'] != '') {
-            if ($product_photo != 'product.jpg') {
-                if (file_exists('assets/images/product/' . $product_photo)) {
-                    unlink('assets/images/product/' . $product_photo);
-                }
-            }
-
-            $result = uploadFile($_FILES['product_photo'], 'assets/images/product/');
-            $product_photo = $result['file_name'];
+        if ($product_photo != 'product.png' && file_exists('assets/images/product/' . $product_photo)) {
+            unlink('assets/images/product/' . $product_photo);
         }
 
-        $con->query("UPDATE product SET product_name = '$product_name', product_category = '$product_category', 
-        product_description = '$product_description', product_price = '$product_price', product_photo = '$product_photo', 
-        product_status = '$product_status' WHERE id = '$id'");
-
-        echo "<script>alert('Success'); document.location.href = 'index.php?page=product';</script>";
-        exit();
+        $stmt_del = $con->prepare("DELETE FROM product WHERE id = ?");
+        $stmt_del->bind_param("i", $id);
+        $stmt_del->execute();
+        $stmt_del->close();
     }
 
-    if (isset($_GET['delete'])) {
-        $id = $_GET['delete'];
-        $singleproduct = $con->query("SELECT * FROM product WHERE id = '$id'")->fetch_assoc();
-        $product_photo = $singleproduct['product_photo'];
+    echo "<script>alert('Product deleted successfully!'); document.location.href = 'index.php?page=product';</script>";
+    exit();
+}
+?>
 
-        if ($product_photo != 'product.jpg') {
-            if (file_exists('assets/images/product/' . $product_photo)) {
-                unlink('assets/images/product/' . $product_photo);
-            }
-        }
-
-        $con->query("DELETE FROM product WHERE id = '$id'");
-        echo "<script>alert('Success'); document.location.href = 'index.php?page=product';</script>";
-        exit();
+<style>
+    .product-card {
+        transition: transform 0.2s;
     }
-    ?>
 
-    <style>
-        .product-card {
-            transition: transform 0.2s;
-        }
+    .product-card:hover {
+        transform: scale(1.05);
+    }
 
-        .product-card:hover {
-            transform: scale(1.05);
-        }
+    .product-img-thumb {
+        height: 60px;
+        width: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+</style>
 
-        .w-25 {
-            margin-right: 10px;
-        }
+<button type="button" class="btn btn-sm btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addModal">
+    <i class="bi bi-plus-lg"></i> Add Product
+</button>
 
-        .category {
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
-        /* Default untuk desktop (≥992px) */
-        img {
-            height: 170px;
-            object-fit: cover;
-            width: 100%;
-        }
-
-        /* Tablet (≥768px dan <992px) */
-        @media (max-width: 991.98px) {
-            img {
-                height: 140px;
-            }
-        }
-
-        /* HP (<768px) */
-        @media (max-width: 767.98px) {
-            img {
-                height: 120px;
-            }
-        }
-    </style>
-
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-sm btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        + Tambah product
-    </button>
-
-    <!-- Modal Add product -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Product</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="row g-1">
-                            <div class="col-md-12">
-                                <label for="">Name</label>
-                                <input type="text" name="product_name" id="" class="form-control mb-2">
-                            </div>
-                            <div class="col-md-12">
-                                <label for="">Description</label>
-                                <textarea name="product_description" id="" class="form-control mb-2"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="">Price</label>
-                                <input type="number" name="product_price" id="" class="form-control mb-2">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="">Category</label>
-                                <select name="product_category" class="form-control mb-2" id="">
-                                    <option value="" disabled selected>Select Category</option>
-                                    <?php
-                                    $getCategory = $con->query("SELECT * FROM category ORDER BY name ASC");
-                                    while ($category = $getCategory->fetch_assoc()) {
-                                        ?>
-                                        <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="">Photo</label>
-                                <input type="file" name="product_photo" id="" class="form-control mb-2">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="">Status product</label>
-                                <select name="product_status" class="form-control" id="">
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="nonactive">Non Active</option>
-                                </select>
-                            </div>
+<!-- MODAL ADD PRODUCT -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="product_name" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="product_description" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Price</label>
+                            <input type="number" step="any" name="product_price" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select name="product_category" class="form-select" required>
+                                <option value="" disabled selected>Select Category</option>
+                                <?php
+                                $getCategory = $con->query("SELECT * FROM category ORDER BY name ASC");
+                                while ($cat = $getCategory->fetch_assoc()) {
+                                    echo '<option value="' . htmlspecialchars($cat['id']) . '">' . htmlspecialchars($cat['name']) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Photo</label>
+                            <input type="file" name="product_photo" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="product_status" class="form-select">
+                                <option value="active" selected>Active</option>
+                                <option value="nonactive">Non Active</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" name="add" class="btn btn-primary">Save product</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Show -->
-    <div class="modal fade" id="showModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Show product</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <h5 id="productName"></h5>
-                    <p id="productDescription"></p>
-                    <h5 id="productPrice"></h5>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Understood</button>
+                    <button type="submit" name="add" class="btn btn-primary">Save Product</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Modal Edit -->
-    <div class="modal fade" id="editModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit product</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="row g-1">
-                            <div class="col-md-12">
-                                <input type="text" hidden name="id" id="id_id">
-                                <label for="">Name</label>
-                                <input type="text" name="product_name" id="product_name_id" placeholder="product Name"
-                                    class="form-control mb-2">
-                            </div>
-                            <div class="col-md-12">
-                                <label for="">Decription</label>
-                                <textarea name="product_description" id="product_description_id"
-                                    placeholder="product Description" class="form-control mb-2"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="">Price</label>
-                                <input type="number" name="product_price" id="product_price_id"
-                                    placeholder="product Price" class="form-control mb-2">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="">Category</label>
-                                <select name="product_category" class="form-control mb-2" id="product_category_id">
-                                    <option value="" disabled selected>Select Category</option>
-                                    <?php
-                                    foreach ($getCategory as $category) {
-                                        ?>
-                                        <option value="<?= $category['id'] ?>"><?= $category['name'] ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="">Photo</label>
-                                <input type="file" name="product_photo" id="product_photo_id" class="form-control mb-2">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="">Status product</label>
-                                <select name="product_status" class="form-control" id="product_status_id">
-                                    <option value="active">Active</option>
-                                    <option value="nonactive">Non Active</option>
-                                </select>
-                            </div>
+<!-- MODAL EDIT PRODUCT -->
+<div class="modal fade" id="editModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="id_id">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="product_name" id="product_name_id" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="product_description" id="product_description_id" class="form-control"
+                                rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Price</label>
+                            <input type="number" step="any" name="product_price" id="product_price_id"
+                                class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select name="product_category" id="product_category_id" class="form-select" required>
+                                <option value="" disabled>Select Category</option>
+                                <?php
+                                $getCategoryEdit = $con->query("SELECT * FROM category ORDER BY name ASC");
+                                while ($cat = $getCategoryEdit->fetch_assoc()) {
+                                    echo '<option value="' . htmlspecialchars($cat['id']) . '">' . htmlspecialchars($cat['name']) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Change Photo</label>
+                            <input type="file" name="product_photo" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="product_status" id="product_status_id" class="form-select">
+                                <option value="active">Active</option>
+                                <option value="nonactive">Non Active</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" name="update" class="btn btn-primary">Update</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" name="update" class="btn btn-primary">Update Product</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <div class="card shadow p-2 mb-2 mt-2">
-        <form method="get">
-            <div class="row g-1">
-                <div class="col-9">
-                    <input type="hidden" name="page" value="product">
-                    <input type="text" class="form-control form-control-sm mb-0" name="search"
-                        placeholder="Search product"
-                        value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
-                </div>
-                <div class="col-1">
-                    <button type="submit" class="btn btn-primary btn-sm mb-0 px-3"><i class="bi bi-search"></i></button>
-                </div>
-                <div class="col-2">
-                    <a href="index.php?page=product" class="btn btn-secondary btn-sm">Reset</a>
-                </div>
+<!-- SEARCH FORM -->
+<div class="card shadow-sm p-2 mb-3">
+    <form method="get">
+        <input type="hidden" name="page" value="product">
+        <div class="row g-2">
+            <div class="col-8 col-md-9">
+                <input type="text" class="form-control form-control-sm" name="search"
+                    placeholder="Search product name..."
+                    value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
             </div>
-        </form>
-    </div>
+            <div class="col-2 col-md-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-search"></i></button>
+            </div>
+            <div class="col-2 col-md-2">
+                <a href="index.php?page=product" class="btn btn-secondary btn-sm w-100">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
 
-    <div class="row g-2">
-        <?php
-        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+<!-- TABLE PRODUCT LIST -->
+<div class="card shadow-sm p-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" style="width: 100%; font-size: 13px;" id="myTable">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Stock In</th>
+                    <th>Stock Out</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $no = 1;
+                $search = $_GET['search'] ?? '';
 
-        $sql = "SELECT product.*, category.name as category_name 
-            FROM product 
-            INNER JOIN category ON product.product_category = category.id";
+                if (!empty($search)) {
+                    $stmt_list = $con->prepare("SELECT p.*, c.name AS category_name, SUM(p.qty) as stock_in, SUM(o.product_qty) as stock_out FROM product p 
+                    LEFT JOIN category c ON p.product_category = c.id
+                    LEFT JOIN purchase_order_items po ON p.name = po.product_name 
+                    LEFT JOIN order_items o ON p.id = o.product_id 
+                    WHERE p.product_name LIKE ?
+                    GROUP BY p.id
+                    ORDER BY p.product_name ASC");
+                    $searchTerm = "%" . $search . "%";
+                    $stmt_list->bind_param("s", $searchTerm);
+                } else {
+                    $stmt_list = $con->prepare("SELECT p.*, c.name AS category_name, SUM(po.qty) as stock_in, SUM(o.product_qty) as stock_out FROM product p 
+                    LEFT JOIN category c ON p.product_category = c.id
+                    LEFT JOIN purchase_order_items po ON p.product_name = po.product_name 
+                    LEFT JOIN order_items o ON p.id = o.product_id 
+                    GROUP BY p.id
+                    ORDER BY p.product_name ASC");
+                }
 
-        if (!empty($search)) {
-            $sql .= " WHERE product.product_name LIKE ? OR category.name LIKE ?";
-            $sql .= " ORDER BY product.created_at DESC";
+                $stmt_list->execute();
+                $get = $stmt_list->get_result();
 
-            $stmt = $con->prepare($sql);
-            $searchTerm = "%" . $search . "%";
-            $stmt->bind_param("ss", $searchTerm, $searchTerm);
-            $stmt->execute();
-            $getproduct = $stmt->get_result();
-        } else {
-            $sql .= " ORDER BY product.created_at DESC";
-            $getproduct = $con->query($sql);
-        }
-
-        if ($getproduct->num_rows > 0) {
-            while ($row = $getproduct->fetch_assoc()) {
-            }
-        } else {
-            echo '<div class="col-12"><div class="alert alert-warning text-center">Produk tidak ditemukan.</div></div>';
-        }
-        ?>
-
-        <?php foreach ($getproduct as $product) { ?>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card shadow p-2 product-card mt-3">
-                    <span
-                        class="category badge bg-primary position-absolute top-0 start-50 translate-middle w-45 text-center"
-                        style="font-size: 10px;">
-                        <?= $product['category_name'] ?>
-                    </span>
-
-                    <img class="mt-1 mb-2 px-2" src="assets/images/product/<?php echo $product['product_photo']; ?>"
-                        alt="<?php echo $product['product_name']; ?>" class="img-fluid">
-
-                    <?php
-                    if ($product['product_status'] == 'active') {
-                        $status = 'Active';
-                    } else {
-                        $status = 'Non active';
-                    }
+                while ($row = $get->fetch_assoc()) {
+                    $stock = $row['stock_in'] - $row['stock_out'];
+                    $photo = !empty($row['product_photo']) ? $row['product_photo'] : 'product.png';
                     ?>
-                    <h6 class="m-0 p-0 px-2">
-                        <b><?php echo htmlspecialchars(ucwords(strtolower($product['product_name']))); ?>
-                            (<?= $status ?>)</b>
-                    </h6>
-
-                    <div class="row m-0 p-0 px-2">
-                        <div class="col-11 text-truncate" style="font-size: 12px; margin: 0; padding: 0;">
-                            <?php echo htmlspecialchars($product['product_description']); ?>
-                        </div>
-                    </div>
-
-                    <h6 class="mt-2 mb-2 px-2"><b>Rp.
-                            <?php echo number_format($product['product_price'], 0, ',', '.'); ?></b></h6>
-
-                    <div class="d-flex px-2">
-                        <button type="button"
-                            onclick='showproductDetails(
-                                <?= json_encode($product["product_name"]) ?>,
-                                <?= json_encode($product["product_description"]) ?>,
-                                <?= json_encode(number_format($product["product_price"], 0, ",", ".")) ?>                              )'
-                            data-bs-toggle="modal" data-bs-target="#showModal" class="btn px-2 btn-sm btn-warning w-25">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button type="button" onclick="setEditModalData('<?php echo $product['id']; ?>', '<?php echo $product['product_name']; ?>', 
-                                '<?php echo $product['product_category']; ?>', '<?php echo $product['product_description']; ?>', 
-                                '<?php echo $product['product_price'] ?>', '<?php echo $product['product_status'] ?>')"
-                            data-bs-toggle="modal" data-bs-target="#editModal" class="btn px-2 btn-sm btn-success w-25"
-                            style="background-color: #000230ff"><i class="bi bi-pencil"></i></button>
-                        <a href="index.php?page=product&delete=<?= $product['id'] ?>"
-                            onclick="return confirm('Are you sure to delete this product?')" type="button"
-                            class="btn px-2 btn-sm btn-danger w-25" style="background-color: #6b0000ff"><i
-                                class="bi bi-trash"></i></a>
-                    </div>
-                </div>
-            </div>
-        <?php } ?>
+                    <tr>
+                        <td><?= $no++ ?></td>
+                        <td>
+                            <img src="assets/images/product/<?= htmlspecialchars($photo) ?>" alt="product"
+                                class="product-img-thumb">
+                        </td>
+                        <td><strong><?= htmlspecialchars($row['product_name']) ?></strong></td>
+                        <td><?= htmlspecialchars($row['category_name'] ?? 'Uncategorized') ?></td>
+                        <td>Rp<?= number_format($row['product_price'], 2) ?></td>
+                        <td><?= htmlspecialchars(substr($row['product_description'] ?? '', 0, 50)) ?>...</td>
+                        <td>
+                            <span class="badge <?= ($row['product_status'] == 'active') ? 'bg-success' : 'bg-danger' ?>" style="text-transform: capitalize">
+                                <?= htmlspecialchars($row['product_status']) ?>
+                            </span>
+                        </td>
+                        <td><span class="badge bg-secondary"><?= htmlspecialchars($row['stock_in'] ?? 0) ?> Pcs </span></td>
+                        <td><span class="badge bg-danger"><?= htmlspecialchars($row['stock_out'] ?? 0) ?> Pcs </span></td>
+                        <td><span class="badge bg-primary"><?= htmlspecialchars($stock ?? 0) ?> Pcs </span></td>
+                        <td>
+                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#editModal"
+                                onclick="setEditModalData('<?= $row['id'] ?>', '<?= addslashes($row['product_name']) ?>', '<?= $row['product_category'] ?>', '<?= addslashes($row['product_description']) ?>', '<?= $row['product_price'] ?>', '<?= $row['product_status'] ?>')">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <a href="index.php?page=product&delete=<?= $row['id'] ?>" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Delete this product?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                <?php }
+                $stmt_list->close();
+                ?>
+            </tbody>
+        </table>
     </div>
 </div>
-</div>
+
 <script>
-    function showproductDetails(name, description, price) {
-        document.getElementById('productName').innerText = name;
-        document.getElementById('productDescription').innerText = description;
-        document.getElementById('productPrice').innerText = 'Rp ' + price;
-    }
     function setEditModalData(id, name, category, description, price, status) {
         document.getElementById('id_id').value = id;
         document.getElementById('product_name_id').value = name;
@@ -377,11 +345,7 @@
         document.getElementById('product_description_id').value = description;
         document.getElementById('product_price_id').value = price;
 
-        let finalStatus = (status && status.trim() !== '') ?
-            status.toLowerCase().replace(/\s+/g, '') :
-            'nonactive';
-
+        let finalStatus = (status && status.trim() !== '') ? status.toLowerCase() : 'nonactive';
         document.getElementById('product_status_id').value = finalStatus;
-
     }
 </script>

@@ -142,11 +142,11 @@ if (isset($_GET['delete'])) {
                                     <button data-bs-toggle="modal" data-bs-target="#updateData"
                                         onclick="upDataForUpdate('<?= $row['id'] ?>', '<?= htmlspecialchars($row['name']) ?>', '<?= $row['photo'] ?>')"
                                         class='btn btn-sm btn-warning' style="cursor: pointer;">
-                                        Edit
+                                        <i class="bi bi-pencil-square"></i>
                                     </button>
                                     <a href='index.php?page=category&delete=<?= $row['id'] ?>' class='btn btn-sm btn-danger'
                                         onclick="return confirm('Are you sure to delete this category?')">
-                                        Delete
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
                             </tr>

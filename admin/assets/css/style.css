@@ -8,7 +8,7 @@
   --admin-text: #1f2937;
   --admin-muted: #6b7280;
   --admin-primary: #67d132;
-  --admin-primary-dark: #1d4ed8;
+  --admin-primary-dark: #4c9228 !important;
   --admin-success: #0f766e;
   --admin-warning: #d97706;
   --admin-danger: #dc2626;
@@ -895,7 +895,7 @@ html[data-theme="dark"] .profile-button .avatar-sm {
 
 .auth-body {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fbff 0%, #eaf2ff 44%, #eef8f6 100%);
+  background: #67d132;
 }
 
 .auth-page,
@@ -1558,7 +1558,7 @@ html:not([data-theme="dark"]) {
   --admin-sidebar-soft: #67d132;
   --admin-sidebar-border: #dbe4ef;
   --admin-sidebar-text: #475569;
-  --admin-sidebar-text-strong: #0f172a;
+  --admin-sidebar-text-strong: #FFFFFF !important;
   --admin-sidebar-muted: #64748b;
   --admin-sidebar-icon-bg: #eaf2ff;
   --admin-sidebar-icon: #67d132;

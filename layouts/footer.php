@@ -1,5 +1,5 @@
 <footer class="mt-4">
-  <p>Created with <i class="bi bi-heart-fill"></i> by jey &copy; 2025 Florist.
+  <p>Created with <i class="bi bi-heart-fill"></i> by J &copy;2025 FLORIST.
   </p>
 </footer>
 <style>

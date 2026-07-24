@@ -7,17 +7,13 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="index.php?hal=main">Home</a>
+                    <a class="nav-link" aria-current="page" href="index.php?page=main">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php?hal=products">Products</a>
+                    <a class="nav-link" href="index.php?page=products">Products</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php?hal=main#contact">Contact</a>
-                </li>
-                <li class="nav-item d-flex">
-                    <a class="nav-link" href="index.php?hal=cart"><i class="bi bi-cart" style="font-size: 16px;"></i></a>
-                    <a class="nav-link" href="admin/login.php"><i class="bi bi-person-fill" style="font-size: 16px;"></i></a>
+                    <a class="nav-link" href="index.php?page=main#contact">Contact</a>
                 </li>
             </ul>
         </div>

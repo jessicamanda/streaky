@@ -7,8 +7,7 @@
             <span></span>
         </button>
 
-        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Logout" title="Logout"><a
-                href="../logout.php">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Logout" title="Logout"><a>
                 <i class="bi bi bi-box-arrow-right" data-theme-icon aria-hidden="true"></i></a>
         </button>
     </div>

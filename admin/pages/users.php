@@ -142,11 +142,11 @@ if (isset($_GET['delete_user'])) {
                                     <a href="#" class="btn btn-warning btn-sm btn-edit" data-bs-toggle="modal"
                                         data-bs-target="#editModal" data-id="<?= $user['id'] ?>"
                                         data-username="<?= $user['username'] ?>" data-password="<?= $user['password'] ?>">
-                                        Edit
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a href="index.php?page=users&delete_user=<?= $user['id'] ?>" class="btn btn-danger btn-sm"
                                         onclick="return confirm('Are you sure to delete this user?')">
-                                        Hapus
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
                             <?php endif; ?>

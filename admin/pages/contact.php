@@ -38,10 +38,10 @@
                                         }
                                     }
                                 }
-                                $text = "Hi, we saw your message, need help?";
+                                $text = "Hi there! Thanks for sharing your thoughts with us. We’d love to follow up on your feedback — when is a good time for us to connect?";
                                 $whatsapp_url = !empty($wa_number) ? "https://wa.me/{$wa_number}?text={$text}" : '';
                                 ?>
-                                <a href="<?= $whatsapp_url ?>" target="_blank" class="btn btn-warning btn-sm"><i class="bi bi-whatsapp"></i></a>
+                                <a href="<?= $whatsapp_url ?>" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i></a>
 
                             </td>
                         </tr>
@@ -71,3 +71,8 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable();
+    });
+</script>

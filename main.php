@@ -31,8 +31,7 @@ if (isset($_POST['contact'])) {
           Flowers</span>
         <h1 class="display-4 fw-bold text-dark mb-3">Fresh Flowers</h1>
         <p class="text-muted leading-relaxed max-w-600 mx-auto">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Qui aliquam omnis, impedit consequatur voluptates
-          natus voluptate cumque et quisquam provident laborum.
+         We offer a handpicked collection of fresh, premium flowers straight from the farm. Professionally arranged to elevate your special moments and convey your heartfelt feelings to those who matter most.
         </p>
       </div>
     </div>
@@ -70,20 +69,23 @@ if (isset($_POST['contact'])) {
     </div>
     <div class="row g-4">
       <?php
-      $sql = "SELECT * FROM product ORDER BY product_name ASC";
+      $sql = "SELECT product.*, category.name as category_name FROM product LEFT JOIN category ON product.product_category = category.id ORDER BY product_name ASC";
       $query = $con->query($sql);
       while ($row = $query->fetch_assoc()) {
         ?>
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
           <div class="product-card h-100">
             <div class="product-img-holder">
+              <?php if (!empty($row['category_name'])): ?>
+                <span class="category-badge"><?= $row['category_name'] ?></span>
+              <?php endif; ?>
               <img src="admin/assets/images/product/<?= $row['product_photo'] ?>" alt="<?= $row['product_name'] ?>">
             </div>
             <div class="product-body p-3">
-              <h6 class="product-title mb-2"><?= $row['product_name'] ?></h6>
+              <h5 class="product-title"><?= $row['product_name'] ?></h5>
+              <small class="text-muted d-block mb-2"><?= $row['product_description'] ?></small>
               <div class="d-flex justify-content-between align-items-center mt-3">
                 <span class="product-price">Rp <?= number_format($row['product_price'], 0, ',', '.') ?></span>
-                <a href="#" class="btn btn-outline-custom btn-sm"><i class="bi bi-cart-plus me-1"></i> Add</a>
               </div>
             </div>
           </div>
@@ -91,7 +93,7 @@ if (isset($_POST['contact'])) {
       <?php } ?>
     </div>
     <div class="text-center mt-5">
-      <a href="#" class="btn btn-custom px-4 py-2">Show All Products</a>
+      <a href="index.php?page=products" class="btn btn-custom px-4 py-2">Show All Products</a>
     </div>
   </div>
 </section>
@@ -262,11 +264,12 @@ if (isset($_POST['contact'])) {
   }
 
   .product-card {
-    background: #67d13243;
+    background: #ffffff;
     border-radius: 16px;
     border: 1px solid var(--border-color);
     overflow: hidden;
     transition: all 0.3s ease;
+    position: relative;
   }
 
   .product-card:hover {
@@ -279,6 +282,7 @@ if (isset($_POST['contact'])) {
     width: 100%;
     overflow: hidden;
     background: var(--bg-light);
+    position: relative;
   }
 
   .product-img-holder img {
@@ -292,14 +296,29 @@ if (isset($_POST['contact'])) {
     transform: scale(1.05);
   }
 
+  .category-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(4px);
+  }
+
   .product-title {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-dark);
   }
 
   .product-price {
-    font-size: 1.1rem;
+    font-size: 1.35rem;
     font-weight: 700;
     color: var(--primary-color);
   }
@@ -348,7 +367,7 @@ if (isset($_POST['contact'])) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
 
   .contact-form-card {
