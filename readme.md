@@ -1,4 +1,4 @@
-# Nama Proyek
+# Streaky
 
 Deskripsi singkat mengenai fungsi utama website atau aplikasi PHP native ini.
 
