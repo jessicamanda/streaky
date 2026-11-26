@@ -1,0 +1,6 @@
+<script src="assets/js/theme/app.init.js"></script>
+<script src="assets/js/theme/app.min.js"></script>
+<script src="assets/js/theme.js"></script>
+
+<!-- solar icons -->
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
